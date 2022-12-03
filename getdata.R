@@ -1,5 +1,4 @@
 library(httr)
-library(jsonlite)
 library(tidyverse)
 
 # List of possible field[] values to return
@@ -9,7 +8,7 @@ library(tidyverse)
 # https://www.kiwi.fi/display/Finna/Kenttien+mappaukset+eri+formaateista+Finnan+indeksiin
 
 base <- "https://api.finna.fi/api/v1/search"
-search <- "?lookfor=major_genre_str_mv:fiction" # includes fiction for children
+search <- "?lookfor=major_genre_str_mv:fiction"
 fields <- "&field[]=languages&field[]=publicationDates&field[]=physicalDescriptions&field[]=originalLanguages&field[]=classifications"
 filters <- '&filter[]=format:"0/Book/"&filter[]=language:"fin"&filter[]=publishDate:'
 sort <- "&sort=relevance,id asc"
@@ -59,12 +58,9 @@ recs <- recs %>%
 
 # Clean
 data <- recs %>% 
-  select(publicationDates, physicalDescriptions, originalLanguages, classifications) %>% 
-  filter(!grepl("verkkoaineisto|DVD", physicalDescriptions)) %>% 
-  filter(physicalDescriptions != "s.") %>% 
   filter(lengths(physicalDescriptions) > 0) %>% 
   mutate(pages = gsub("([0-9]+) [a-z].*", "\\1", physicalDescriptions)) %>% 
-  filter(!grepl('\\[|c(")|s.|\\(|\\.', pages)) %>% 
+  filter(!grepl('\\[|c(")|s.|\\(|\\.|verkkoaineisto|DVD', pages)) %>% 
   filter(!pages %in% c("0", "99.", "A3", "kuv", "Kuv", "KUV", "nid")) %>%
   mutate(pages = as.numeric(pages),
          year = as.numeric(publicationDates)) %>% 
