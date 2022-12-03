@@ -61,7 +61,7 @@ data <- recs %>%
   filter(lengths(physicalDescriptions) > 0) %>% 
   mutate(pages = gsub("([0-9]+) [a-z].*", "\\1", physicalDescriptions)) %>% 
   filter(!grepl('\\[|c(")|s.|\\(|\\.|verkkoaineisto|DVD', pages)) %>% 
-  filter(!pages %in% c("0", "99.", "A3", "kuv", "Kuv", "KUV", "nid")) %>%
+  filter(!pages %in% c("0", "A3", "kuv", "Kuv", "KUV", "nid")) %>%
   mutate(pages = as.numeric(pages),
          year = as.numeric(publicationDates)) %>% 
   filter(pages < 2000) %>% # max is 1521, bigger (3 items) are bogus values
