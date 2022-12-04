@@ -67,7 +67,9 @@ data <- recs %>%
   filter(!pages %in% c("0", "A3", "kuv", "Kuv", "KUV", "nid")) %>%
   mutate(pages = as.numeric(pages),
          year = as.numeric(publicationDates)) %>% 
-  filter(pages < 2000 & pages > 50) %>% # max is 1521, bigger (3 items) are bogus values
+  # max page size is 1521, bigger (3 items) are bogus values
+  # min page size 100 gives a more realistic picture
+  filter(pages < 2000 & pages > 100) %>% 
   filter(year <= 2022 & year >= 2000) %>% 
   select(year, pages) 
 
