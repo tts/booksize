@@ -17,7 +17,7 @@ other <- "&prettyPrint=false&lng=fi"
 years <- as.character(seq(2000, 2022))
 
 # Book count by year
-allr <- map(years, ~{
+allr <- map(.x = years, ~{
   print(paste0("Fetching year ", .x))
   q <- utils::URLencode(paste0(base, search, fields, filters, .x, 
                                sort, "&page=1&limit=0", other))
@@ -25,7 +25,7 @@ allr <- map(years, ~{
   content(r, as = "parsed")
 })
 
-counts <- map_df(allr, ~{
+counts <- map_df(.x = allr, ~{
   magrittr::extract(.x, "resultCount")
 })
 
@@ -53,18 +53,21 @@ recs <- map_dfr(.x = years, ~{
 
 saveRDS(recs, "recs2000-2022.RDS")
 
+recs <- readRDS("recs2000-2022.RDS")
+
 recs <- recs %>%
   pull(2)
 
 # Clean
 data <- recs %>% 
   filter(lengths(physicalDescriptions) > 0) %>% 
+  filter(!grepl("verkkoaineisto", physicalDescriptions)) %>% 
   mutate(pages = gsub("([0-9]+) [a-z].*", "\\1", physicalDescriptions)) %>% 
-  filter(!grepl('\\[|c(")|s.|\\(|\\.|verkkoaineisto|DVD', pages)) %>% 
+  filter(!grepl('\\[|c(")|s.|\\(|\\.DVD', pages)) %>% 
   filter(!pages %in% c("0", "A3", "kuv", "Kuv", "KUV", "nid")) %>%
   mutate(pages = as.numeric(pages),
          year = as.numeric(publicationDates)) %>% 
-  filter(pages < 2000) %>% # max is 1521, bigger (3 items) are bogus values
+  filter(pages < 2000 & pages > 50) %>% # max is 1521, bigger (3 items) are bogus values
   filter(year <= 2022 & year >= 2000) %>% 
   select(year, pages) 
 
